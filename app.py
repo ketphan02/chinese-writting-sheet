@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
-from pdf import process
+from pdf import process, parse
 from io import BytesIO
 
 
@@ -25,23 +25,23 @@ def read_root():
 
 @app.get("/api")
 def generate_pdf(characters: str = ""):
-    if characters == "":
+    if len(characters) == 0:
         return
 
-    characters = characters[:100]
+    characters = ''.join(list(set(parse(characters))))[:100]
 
     try:
-      pdf = process(characters)
-      if (pdf is None):
-          return
+        pdf = process(characters)
+        if (pdf is None):
+            return
 
-      pdf_io = BytesIO(pdf.encode('latin-1'))
-      pdf_io.seek(0)
+        pdf_io = BytesIO(pdf.encode("latin-1"))
+        pdf_io.seek(0)
 
-      res =  StreamingResponse(pdf_io, media_type="application/pdf")
-      res.headers["Content-Disposition"] = f"attachment; filename={characters}.pdf"
+        res = StreamingResponse(pdf_io, media_type="application/pdf")
+        res.headers["Content-Disposition"] = "attachment; filename=writing.pdf" # TODO: Optional filename
 
-      return res
+        return res
     except Exception as e:
         print(e)
         return

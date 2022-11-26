@@ -1,5 +1,6 @@
 from fpdf import FPDF
 import re
+from typing import Tuple
 
 DOCUMENT_TITLE = 'My Document'
 
@@ -45,7 +46,8 @@ def parse(txt):
 
 
 def process(txt):
-    characters = parse(txt)
+    characters = ''.join(list(set(parse(txt))))[:100]
+    
     for i, char in enumerate(characters):
         if (i % NUM_ROWS_PER_PAGE == 0):
             pdf.add_page()
@@ -65,3 +67,14 @@ def process(txt):
             pdf.cell(10, 10, char, 0, 0, 'C')
 
     return pdf.output(dest='S')  # type: ignore
+
+# Health check
+if __name__ == "__main__":
+    from io import BytesIO
+
+    pdf = process('你好')
+    pdf_io = BytesIO(pdf.encode('latin-1'))
+    pdf_io.seek(0)
+
+    with open('./static/pdf/test.pdf', 'wb') as f:
+        f.write(pdf_io.read())
