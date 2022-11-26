@@ -1,3 +1,5 @@
 .venv/
 *.pkl
 *.pdf
+__pycache__/
+.vscode/
